@@ -1,6 +1,6 @@
 # Lancer l'application en local
 
-On utilise Node.js (v14.18.0) avec npm.
+On utilise Node.js (v18) avec npm.
 
 Créer le fichier `.env` avec :
 
