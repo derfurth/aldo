@@ -7,9 +7,8 @@ Créer le fichier `.env` avec :
 ```
 HOSTNAME=127.0.0.1:8080
 PROTOCOL=HTTP
-SIB_API_KEY=votre clé (facultatif)
-SIB_CONTACT_TEMPLATE=votre template (facultatif)
-ALDO_EMAIL=votre mail (facultatif)
+SUPABASE_ANON_KEY=la clé de Supabase Territoires en Transitions (facultatif)
+SUPABASE_URL=l'url de Supabase Territoires en Transitions (facultatif)
 ```
 
 `npm install`

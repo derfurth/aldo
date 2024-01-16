@@ -1,10 +1,8 @@
-
 const express = require('express')
 const router = express.Router()
 const path = require('path')
 const rootFolder = path.join(__dirname, '../')
 const { epciList, communeList } = require(path.join(rootFolder, './data'))
-const sendinblue = require(path.join(rootFolder, './sendinblue'))
 const { territoryHandler } = require('./handlers/territory')
 const { excelExportHandler } = require('./handlers/excelExport')
 
@@ -42,6 +40,9 @@ router.get('/commune/:commune', territoryHandler)
 router.get('/commune/:commune/tableur', excelExportHandler)
 router.get('/commune/:commune/:tab', territoryHandler)
 
+const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY
+
 router.get('/contact', (req, res) => {
   res.render('contact', {
     pageTitle: 'Contact',
@@ -50,15 +51,25 @@ router.get('/contact', (req, res) => {
 })
 
 router.post('/contact', (req, res) => {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.error('Les variables SUPABASE_URL et SUPABASE_ANON_KEY sont requises pour envoyer des mails.')
+    res.redirect('/contact?statut=503')
+  }
   const { name, email, subject, message } = req.body
-  sendinblue({
-    to: [{
-      email: process.env.ALDO_EMAIL
-    }],
-    replyTo: { email },
-    subject,
-    templateId: Number(process.env.SIB_CONTACT_TEMPLATE),
-    params: { NOM: name, email, subject, MESSAGE: message }
+  const payload = {
+    categorie: 'Aldo',
+    objet: subject,
+    nom: name,
+    email,
+    message
+  }
+  fetch(`${SUPABASE_URL}/functions/v1/site_send_message`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+    },
+    body: JSON.stringify(payload)
   }).then(() => {
     res.redirect('/contact?statut=succès')
   }).catch((error) => {
